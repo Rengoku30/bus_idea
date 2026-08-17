@@ -191,7 +191,7 @@ fun LoginScreen(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Box(
                     modifier = Modifier
@@ -206,12 +206,12 @@ fun LoginScreen(
                             selectedTab = 0
                             errorMessage = null
                         }
-                        .padding(horizontal = 10.dp, vertical = 8.dp)
+                        .padding(horizontal = 8.dp, vertical = 8.dp)
                         .testTag("demo_user_aarav")
                 ) {
                     Column {
-                        Text("Aarav Sharma", color = TNTTextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        Text("Gold • Mumbai", color = TNTYellow, fontSize = 10.sp)
+                        Text("Aarav", color = TNTTextPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text("Traveler", color = TNTYellow, fontSize = 9.sp)
                     }
                 }
 
@@ -228,12 +228,34 @@ fun LoginScreen(
                             selectedTab = 0
                             errorMessage = null
                         }
-                        .padding(horizontal = 10.dp, vertical = 8.dp)
+                        .padding(horizontal = 8.dp, vertical = 8.dp)
                         .testTag("demo_user_priya")
                 ) {
                     Column {
-                        Text("Priya Patel", color = TNTTextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        Text("Silver • Pune", color = TNTTextSecondary, fontSize = 10.sp)
+                        Text("Priya", color = TNTTextPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text("Traveler", color = TNTTextSecondary, fontSize = 9.sp)
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .weight(1.1f)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(TNTDarkCard)
+                        .border(BorderStroke(1.dp, if (email.contains("admin")) TNTYellow else TNTDarkCardBorder), RoundedCornerShape(10.dp))
+                        .clickable {
+                            email = "admin@tntbus.in"
+                            phoneNumber = "9899911223"
+                            password = "Admin@Password123"
+                            selectedTab = 0
+                            errorMessage = null
+                        }
+                        .padding(horizontal = 8.dp, vertical = 8.dp)
+                        .testTag("demo_user_admin")
+                ) {
+                    Column {
+                        Text("Fleet Admin", color = TNTYellow, fontSize = 11.sp, fontWeight = FontWeight.Black)
+                        Text("Operations", color = TNTTextSecondary, fontSize = 9.sp)
                     }
                 }
             }

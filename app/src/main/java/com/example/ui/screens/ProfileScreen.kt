@@ -24,7 +24,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.LockReset
@@ -85,7 +87,8 @@ fun ProfileScreen(
     onNavigateToAlerts: () -> Unit = {},
     onNavigateToLogin: () -> Unit = {},
     onNavigateToRegister: () -> Unit = {},
-    onNavigateToForgotPassword: () -> Unit = {}
+    onNavigateToForgotPassword: () -> Unit = {},
+    onNavigateToAdminDashboard: () -> Unit = {}
 ) {
     val userProfile by viewModel.userProfile.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -341,6 +344,98 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(20.dp))
                 }
 
+                // Featured Admin Banner if user has admin role
+                if (userProfile.isAdmin) {
+                    item {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = TNTDarkInput),
+                            shape = RoundedCornerShape(16.dp),
+                            border = BorderStroke(1.5.dp, TNTYellow),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 18.dp)
+                                .testTag("profile_admin_banner_card")
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(36.dp)
+                                                .background(TNTYellow.copy(alpha = 0.2f), CircleShape)
+                                                .border(BorderStroke(1.dp, TNTYellow), CircleShape),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.AdminPanelSettings,
+                                                contentDescription = "Admin Shield",
+                                                tint = TNTYellow,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.width(10.dp))
+                                        Column {
+                                            Text(
+                                                text = "FLEET OPS CONSOLE",
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.Black,
+                                                color = TNTYellow,
+                                                letterSpacing = 1.sp
+                                            )
+                                            Text(
+                                                text = "Authorized Operations Manager",
+                                                fontSize = 11.sp,
+                                                color = TNTTextSecondary
+                                            )
+                                        }
+                                    }
+
+                                    Box(
+                                        modifier = Modifier
+                                            .background(TNTYellow, RoundedCornerShape(4.dp))
+                                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                                    ) {
+                                        Text(
+                                            text = "ADMIN",
+                                            fontSize = 9.sp,
+                                            fontWeight = FontWeight.Black,
+                                            color = Color.Black
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Text(
+                                    text = "Access all passenger bookings, update trip manifests, and dispatch new bus routes to national fleet schedules.",
+                                    fontSize = 12.sp,
+                                    color = Color.White,
+                                    lineHeight = 16.sp
+                                )
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                Button(
+                                    onClick = onNavigateToAdminDashboard,
+                                    colors = ButtonDefaults.buttonColors(containerColor = TNTYellowBright, contentColor = Color.Black),
+                                    shape = RoundedCornerShape(10.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(42.dp)
+                                        .testTag("profile_open_admin_btn")
+                                ) {
+                                    Icon(Icons.Default.DirectionsBus, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("OPEN FLEET ADMIN DASHBOARD", fontWeight = FontWeight.Black, fontSize = 12.sp)
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // Account & Security Group
                 item {
                     Text(
@@ -361,6 +456,16 @@ fun ProfileScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column {
+                            ProfileMenuItem(
+                                icon = Icons.Default.AdminPanelSettings,
+                                title = "Fleet Operations Portal",
+                                subtitle = if (userProfile.isAdmin) "Manage bookings and bus routes (Authorized)" else "Admin & dispatcher login required",
+                                onClick = onNavigateToAdminDashboard,
+                                testTag = "menu_admin_portal"
+                            )
+                            Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                                Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(TNTDarkCardBorder))
+                            }
                             ProfileMenuItem(
                                 icon = Icons.Default.LockReset,
                                 title = "Reset / Change Password",
@@ -567,18 +672,41 @@ fun ProfileScreen(
 
                             Spacer(modifier = Modifier.height(14.dp))
 
-                            // Quick Demo Sign In
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(TNTDarkInput)
-                                    .clickable {
-                                        viewModel.login("aarav.sharma@tntbus.in", "Aarav Sharma", "+91 98765 43210")
-                                    }
-                                    .padding(horizontal = 12.dp, vertical = 6.dp)
-                                    .testTag("quick_demo_sign_in")
+                            // Quick Demo Sign In Options
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Text("⚡ Quick Sign-In as Aarav Sharma", color = TNTYellow, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(TNTDarkInput)
+                                        .clickable {
+                                            viewModel.login("aarav.sharma@tntbus.in", "Aarav Sharma", "+91 98765 43210")
+                                        }
+                                        .padding(horizontal = 8.dp, vertical = 8.dp)
+                                        .testTag("quick_demo_sign_in"),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("⚡ Traveler Aarav", color = TNTYellow, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                }
+
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(TNTDarkInput)
+                                        .border(BorderStroke(1.dp, TNTYellow.copy(alpha = 0.5f)), RoundedCornerShape(8.dp))
+                                        .clickable {
+                                            viewModel.loginAsAdmin()
+                                        }
+                                        .padding(horizontal = 8.dp, vertical = 8.dp)
+                                        .testTag("quick_admin_sign_in"),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("🛡️ Fleet Admin", color = TNTYellow, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                }
                             }
                         }
                     }
@@ -593,6 +721,16 @@ fun ProfileScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column {
+                            ProfileMenuItem(
+                                icon = Icons.Default.AdminPanelSettings,
+                                title = "Fleet Operations Portal (Admin)",
+                                subtitle = "Authorized dispatch & booking console",
+                                onClick = onNavigateToAdminDashboard,
+                                testTag = "guest_menu_admin_portal"
+                            )
+                            Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                                Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(TNTDarkCardBorder))
+                            }
                             ProfileMenuItem(
                                 icon = Icons.Default.NotificationsActive,
                                 title = "Live Highway & Route Advisories",

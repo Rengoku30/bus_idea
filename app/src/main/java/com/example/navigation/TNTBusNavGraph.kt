@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.ui.screens.AdminDashboardScreen
 import com.example.ui.screens.AlertsScreen
 import com.example.ui.screens.BookingConfirmedScreen
 import com.example.ui.screens.ForgotPasswordScreen
@@ -357,6 +358,9 @@ fun TNTBusNavGraph(
                 },
                 onNavigateToForgotPassword = {
                     navController.navigate(Screen.ForgotPassword.route)
+                },
+                onNavigateToAdminDashboard = {
+                    navController.navigate(Screen.AdminDashboard.route)
                 }
             )
         }
@@ -415,6 +419,30 @@ fun TNTBusNavGraph(
                     navController.navigate(Screen.Profile.route) {
                         launchSingleTop = true
                     }
+                }
+            )
+        }
+
+        // 11. TNTBus - Admin Operations Dashboard
+        composable(
+            route = Screen.AdminDashboard.route,
+            enterTransition = {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                    animationSpec = tween(300)
+                ) + fadeIn(animationSpec = tween(200))
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Down,
+                    animationSpec = tween(280)
+                ) + fadeOut(animationSpec = tween(200))
+            }
+        ) {
+            AdminDashboardScreen(
+                viewModel = viewModel,
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }

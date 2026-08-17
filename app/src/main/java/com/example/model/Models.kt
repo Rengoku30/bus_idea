@@ -53,8 +53,12 @@ data class UserProfile(
     val memberTier: String = "Gold Member",
     val joinedYear: String = "2022",
     val avatarDrawableRes: Int? = null,
-    val isLoggedIn: Boolean = true
-)
+    val isLoggedIn: Boolean = true,
+    val role: String = "user" // "user" or "admin"
+) {
+    val isAdmin: Boolean
+        get() = isLoggedIn && role.equals("admin", ignoreCase = true)
+}
 
 data class SearchQuery(
     val origin: String = "Mumbai (BOM)",

@@ -173,6 +173,62 @@ class TNTBusViewModel : ViewModel() {
         qrCodeData = "TNTBUS-MH84729-BOM-PNQ-SEAT4A"
     )
 
+    private val sampleAdminBookings = listOf(
+        initialBooking,
+        Booking(
+            id = "KA10294",
+            trip = sampleTrips[4], // BLR -> MAA
+            seatNumber = "7B",
+            passengerName = "Priya Patel",
+            passengerEmail = "priya.patel@tntbus.in",
+            passengerPhone = "+91 98123 45678",
+            bookingDate = "28 Oct • 07:00 AM",
+            status = "CONFIRMED",
+            totalAmount = 699.0,
+            paymentMethod = "Credit Card (HDFC •••• 8812)",
+            qrCodeData = "TNTBUS-KA10294-BLR-MAA-SEAT7B"
+        ),
+        Booking(
+            id = "DL38411",
+            trip = sampleTrips[5], // DEL -> JAI
+            seatNumber = "2A",
+            passengerName = "Vikram Malhotra",
+            passengerEmail = "vikram.m@gmail.com",
+            passengerPhone = "+91 97654 32109",
+            bookingDate = "27 Oct • 06:00 AM",
+            status = "COMPLETED",
+            totalAmount = 549.0,
+            paymentMethod = "UPI (Paytm)",
+            qrCodeData = "TNTBUS-DL38411-DEL-JAI-SEAT2A"
+        ),
+        Booking(
+            id = "TS90218",
+            trip = sampleTrips[6], // HYD -> BLR
+            seatNumber = "5C",
+            passengerName = "Ananya Iyer",
+            passengerEmail = "ananya.iyer@outlook.com",
+            passengerPhone = "+91 99887 76655",
+            bookingDate = "28 Oct • 09:30 PM",
+            status = "CONFIRMED",
+            totalAmount = 999.0,
+            paymentMethod = "Net Banking (SBI)",
+            qrCodeData = "TNTBUS-TS90218-HYD-BLR-SEAT5C"
+        ),
+        Booking(
+            id = "MH45210",
+            trip = sampleTrips[2], // BOM -> PNQ
+            seatNumber = "6D",
+            passengerName = "Rohan Deshmukh",
+            passengerEmail = "rohan.d@yahoo.com",
+            passengerPhone = "+91 91234 56780",
+            bookingDate = "25 Oct • 02:30 PM",
+            status = "CANCELLED",
+            totalAmount = 649.0,
+            paymentMethod = "UPI (PhonePe)",
+            qrCodeData = "TNTBUS-MH45210-BOM-PNQ-SEAT6D"
+        )
+    )
+
     private val sampleAlerts = listOf(
         TravelAlert(
             id = "ALT-1",
@@ -251,7 +307,7 @@ class TNTBusViewModel : ViewModel() {
     private val _userProfile = MutableStateFlow(UserProfile(isLoggedIn = true))
     val userProfile: StateFlow<UserProfile> = _userProfile.asStateFlow()
 
-    private val _bookings = MutableStateFlow(listOf(initialBooking))
+    private val _bookings = MutableStateFlow(sampleAdminBookings)
     val bookings: StateFlow<List<Booking>> = _bookings.asStateFlow()
 
     private val _activeBooking = MutableStateFlow<Booking>(initialBooking)
@@ -381,32 +437,84 @@ class TNTBusViewModel : ViewModel() {
         _alerts.update { list -> list.map { it.copy(isRead = true) } }
     }
 
-    fun login(email: String, name: String = "Aarav Sharma", phone: String = "+91 98765 43210") {
+    fun addBusRoute(trip: BusTrip) {
+        _trips.update { listOf(trip) + it }
+    }
+
+    fun deleteBusRoute(tripId: String) {
+        _trips.update { list -> list.filter { it.id != tripId } }
+    }
+
+    fun updateBookingStatus(bookingId: String, newStatus: String) {
+        _bookings.update { list ->
+            list.map { if (it.id == bookingId) it.copy(status = newStatus) else it }
+        }
+        if (_activeBooking.value.id == bookingId) {
+            _activeBooking.update { it.copy(status = newStatus) }
+        }
+    }
+
+    fun loginAsAdmin(
+        email: String = "admin@tntbus.in",
+        name: String = "Rajesh Verma (Fleet Manager)",
+        phone: String = "+91 98999 11223"
+    ) {
         _userProfile.value = _userProfile.value.copy(
             name = name,
             email = email,
             phone = phone,
-            isLoggedIn = true
+            memberTier = "Fleet Super Admin",
+            isLoggedIn = true,
+            role = "admin"
+        )
+    }
+
+    fun authenticateAdminPin(pin: String): Boolean {
+        if (pin == "9988" || pin == "1234" || pin == "0000" || pin == "7788") {
+            loginAsAdmin()
+            return true
+        }
+        return false
+    }
+
+    fun setUserRole(role: String) {
+        _userProfile.update { it.copy(role = role) }
+    }
+
+    fun login(email: String, name: String = "Aarav Sharma", phone: String = "+91 98765 43210") {
+        val isAdmin = email.contains("admin", ignoreCase = true)
+        _userProfile.value = _userProfile.value.copy(
+            name = if (isAdmin) "Rajesh Verma (Fleet Manager)" else name,
+            email = email,
+            phone = phone,
+            memberTier = if (isAdmin) "Fleet Super Admin" else "Gold Member",
+            isLoggedIn = true,
+            role = if (isAdmin) "admin" else "user"
         )
     }
 
     fun loginWithPhone(phone: String, name: String = "Aarav Sharma") {
+        val isAdmin = phone.contains("9999") || phone.contains("98999")
         _userProfile.value = _userProfile.value.copy(
-            name = name,
-            email = if (phone.contains("98765")) "aarav.sharma@tntbus.in" else "traveler@tntbus.in",
+            name = if (isAdmin) "Rajesh Verma (Fleet Manager)" else name,
+            email = if (isAdmin) "admin@tntbus.in" else if (phone.contains("98765")) "aarav.sharma@tntbus.in" else "traveler@tntbus.in",
             phone = phone,
-            isLoggedIn = true
+            memberTier = if (isAdmin) "Fleet Super Admin" else "Gold Member",
+            isLoggedIn = true,
+            role = if (isAdmin) "admin" else "user"
         )
     }
 
     fun register(name: String, email: String, phone: String) {
+        val isAdmin = email.contains("admin", ignoreCase = true)
         _userProfile.value = _userProfile.value.copy(
             name = name,
             email = email,
             phone = phone,
-            memberTier = "Silver Member",
+            memberTier = if (isAdmin) "Fleet Super Admin" else "Silver Member",
             joinedYear = "2026",
-            isLoggedIn = true
+            isLoggedIn = true,
+            role = if (isAdmin) "admin" else "user"
         )
     }
 
