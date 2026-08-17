@@ -1,0 +1,6 @@
+{
+  "name": "TNTBus",
+  "description": "Intercity bus booking app for high-speed, reliable transit with route discovery, seat selection, and digital boarding tickets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
